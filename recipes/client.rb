@@ -27,15 +27,15 @@ end
 
 %w( native_client command_line_utils clr_types smo ps_extensions ).each do |pkg|
   package node['sql_server'][pkg]['package_name'] do
-    source node['sql_server'][pkg]['url']
-    checksum node['sql_server'][pkg]['checksum']
-    installer_type :msi
-    options "IACCEPTSQLNCLILICENSETERMS=#{node['sql_server']['accept_eula'] ? 'YES' : 'NO'}"
-    action :install
-  end
+      source node['sql_server'][pkg]['url']
+      checksum node['sql_server'][pkg]['checksum']
+      installer_type :msi
+      options "IACCEPTSQLNCLILICENSETERMS=#{node['sql_server']['accept_eula'] ? 'YES' : 'NO'}"
+      action :install
+    end
 end
 
 # update path
 windows_path "#{node['sql_server']['install_dir']}\\#{SqlServer::Helper.install_dir_version(node['sql_server']['version'])}\\Tools\\Binn" do
-  action :add
+    action :add
 end
