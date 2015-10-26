@@ -20,6 +20,7 @@
 
 Chef::Application.fatal!("node['sql_server']['server_sa_password'] must be set for this cookbook to run") if node['sql_server']['server_sa_password'].nil?
 ::Chef::Recipe.send(:include, Windows::Helper)
+::Chef::Recipe.send(:include, Chef::Mixin::PowershellOut)
 
 config_file_path = win_friendly_path(File.join(Chef::Config[:file_cache_path], 'ConfigurationFile.ini'))
 
@@ -68,63 +69,68 @@ end.compact.join ' '
 is_sqlserver_installed = is_package_installed?(package_name)
 
 filename = File.basename(package_url).downcase
-iso_install = File.extname(filename) == ".iso"
-download_path = "#{Chef::Config['file_cache_path']}/#{filename}"
+fileextension = File.extname(filename)
+is_diskimage = ['.iso', '.vhd', '.vhdx'].include? fileextension
 
-if iso_install
+if is_diskimage
+  download_path = "#{Chef::Config['file_cache_path']}/#{filename}"
   remote_file download_path do
     source package_url
     checksum package_checksum
-    not_if {is_sqlserver_installed}
   end
-  
+
   mount_log_path = "#{Chef::Config['file_cache_path']}/#{filename}_Mount_Log.txt"
-  mount_drive_path = "#{Chef::Config['file_cache_path']}/#{filename}_Mount_Drive.txt"
   powershell_script "Mount #{filename}" do
     code <<-EOH
       Mount-DiskImage -ImagePath "#{download_path}"
-          if ($? -eq $True)
+      if ($? -eq $True)
       {
         echo "Success: #{filename} was mounted successfully." > #{mount_log_path}
-        $SQL_Server_ISO_Drive_Letter = @(gwmi -Class Win32_LogicalDisk | ?{$_.VolumeName -eq 'SqlServer'} | %{$_.DeviceId})[0]
-        $url = "$SQL_Server_ISO_Drive_Letter/setup.exe"
-
-        echo $url > #{mount_drive_path}
         exit 0;
       }
       
       if ($? -eq $False)
-          {
+      {
         echo "Fail: #{filename} was not mount successfully." > #{mount_log_path}
         exit 2;
-          }
+      }
       EOH
-    not_if {is_sqlserver_installed}
   end
 
-  ruby_block 'Get installation url' do
-    block do
-      encoding_options = {
-          :invalid           => :replace,  # Replace invalid byte sequences
-          :undef             => :replace,  # Replace anything not defined in ASCII
-          :replace           => '',        # Use a blank for those replacements
-          :universal_newline => true       # Always break lines with \n
-        }
-        package_url = File.read(mount_drive_path).encode(Encoding.find('ASCII'), encoding_options)
-    end
-    not_if {is_sqlserver_installed}
+  cmd = powershell_out!(<<-EOH
+    Write-Host @(gwmi -Class Win32_LogicalDisk | ?{$_.VolumeName -eq 'SqlServer'} | %{$_.DeviceId})[0]
+    EOH
+    );
+
+  cd_drive = ""
+  if cmd.stderr == ""
+    cd_drive = cmd.stdout
+  else
+    raise cmd.stderr
   end
+  setup_url = "#{cd_drive}/#{node['sql_server']['server']['setup']}"
 
-  package_checksum = ""
-end
+  windows_package package_name do
+    source setup_url
+    timeout node['sql_server']['server']['installer_timeout']
+    installer_type :custom
+    options "/q /ConfigurationFile=#{config_file_path}"
+    action :install
+  end  
 
-windows_package package_name do
-  source package_url
-  checksum package_checksum
-  timeout node['sql_server']['server']['installer_timeout']
-  installer_type :custom
+  powershell_script 'Dismount #{filename}' do
+    code <<-EOH
+      Dismount-DiskImage -ImagePath "#{download_path}"
+      EOH
+  end  
+else
+  windows_package package_name do
+    source package_url
+    checksum package_checksum
+    timeout node['sql_server']['server']['installer_timeout']
+    installer_type :custom
   options "/q /ConfigurationFile=#{config_file_path} #{passwords_options}"
-  action :install
+    action :install
   notifies :request_reboot, 'reboot[sql server install]'
   not_if {is_sqlserver_installed}
   returns [0, 42, 127, 3010]
