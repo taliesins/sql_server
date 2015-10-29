@@ -19,8 +19,6 @@
 #
 
 Chef::Application.fatal!("node['sql_server']['server_sa_password'] must be set for this cookbook to run") if node['sql_server']['server_sa_password'].nil?
-::Chef::Recipe.send(:include, Windows::Helper)
-::Chef::Recipe.send(:include, Chef::Mixin::PowershellOut)
 
 config_file_path = win_friendly_path(File.join(Chef::Config[:file_cache_path], 'ConfigurationFile.ini'))
 
@@ -70,67 +68,33 @@ is_sqlserver_installed = is_package_installed?(package_name)
 
 filename = File.basename(package_url).downcase
 fileextension = File.extname(filename)
-is_diskimage = ['.iso', '.vhd', '.vhdx'].include? fileextension
+is_iso = ['.iso'].include? fileextension
 
-if is_diskimage
-  download_path = "#{Chef::Config['file_cache_path']}/#{filename}"
-  remote_file download_path do
-    source package_url
-    checksum package_checksum
-  end
+if is_iso
+  include_recipe '7-zip' 
+end
 
-  mount_log_path = "#{Chef::Config['file_cache_path']}/#{filename}_Mount_Log.txt"
-  powershell_script "Mount #{filename}" do
-    code <<-EOH
-      Mount-DiskImage -ImagePath "#{download_path}"
-      if ($? -eq $True)
-      {
-        echo "Success: #{filename} was mounted successfully." > #{mount_log_path}
-        exit 0;
-      }
-      
-      if ($? -eq $False)
-      {
-        echo "Fail: #{filename} was not mount successfully." > #{mount_log_path}
-        exit 2;
-      }
-      EOH
-  end
+download_path = "#{Chef::Config['file_cache_path']}/#{filename}"
+remote_file download_path do
+  source package_url
+  checksum package_checksum
+  only_if {is_iso}
+end
 
-  cmd = powershell_out!(<<-EOH
-    Write-Host @(gwmi -Class Win32_LogicalDisk | ?{$_.VolumeName -eq 'SqlServer'} | %{$_.DeviceId})[0]
-    EOH
-    );
+iso_extraction_dir = "#{Chef::Config['file_cache_path']}/#{package_checksum}"
 
-  cd_drive = ""
-  if cmd.stderr == ""
-    cd_drive = cmd.stdout.strip
-  else
-    raise cmd.stderr
-  end
-  setup_url = "#{cd_drive}/#{node['sql_server']['server']['setup']}"
+execute 'extract_iso' do
+  command "#{File.join(node['7-zip']['home'], '7z.exe')} x -y -o\"#{iso_extraction_dir}\" #{download_path}"
+  only_if {is_iso && !(::File.directory?(download_path)) }
+end
 
-  windows_package package_name do
-    source setup_url
-    timeout node['sql_server']['server']['installer_timeout']
-    installer_type :custom
-    options "/q /ConfigurationFile=#{config_file_path}"
-    action :install
-  end  
-
-  powershell_script 'Dismount #{filename}' do
-    code <<-EOH
-      Dismount-DiskImage -ImagePath "#{download_path}"
-      EOH
-  end  
-else
-  windows_package package_name do
-    source package_url
-    checksum package_checksum
-    timeout node['sql_server']['server']['installer_timeout']
-    installer_type :custom
+windows_package package_name do
+  source !is_iso ? package_url : "#{iso_extraction_dir}/#{node['sql_server']['server']['setup']}"
+  checksum package_checksum
+  timeout node['sql_server']['server']['installer_timeout']
+  installer_type :custom
   options "/q /ConfigurationFile=#{config_file_path} #{passwords_options}"
-    action :install
+  action :install
   notifies :request_reboot, 'reboot[sql server install]'
   not_if {is_sqlserver_installed}
   returns [0, 42, 127, 3010]
