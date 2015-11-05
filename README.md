@@ -34,6 +34,24 @@ The following attributes are used by both client and server recipes.
 This file also contains download url, checksum and package name for all client installation packages. See the **Usage** section below for more details.
 
 ### server
+* `node['sql_server']['install_dir']` - main directory for installation, default is `C:\Program Files\Microsoft SQL Server`
+* `node['sql_server']['port']` - static TCP port server should listen on for client connections, default is `1433`
+* `node['sql_server']['instance_name']` - name of the default instance, default is `SQLEXPRESS`
+* `node['sql_server']['instance_dir']` - root directory of the default instance, default is `C:\Program Files\Microsoft SQL Server`
+* `node['sql_server']['shared_wow_dir']` - root directory of the shared WOW directory, default is `C:\Program Files (x86)\Microsoft SQL Server`
+* `node['sql_server']['agent_account']` - Agent account name, default is `NT AUTHORITY\NETWORK SERVICE`
+* `node['sql_server']['agent_startup']` - Agent service startup mode, default is `Disabled`
+* `node['sql_server']['analysis_services_account']` - Analysis Services account name, default is `NT AUTHORITY\NETWORK SERVICE`
+* `node['sql_server']['analysis_services_startup']` - Analysis Services service startup mode, default is `Disabled`
+* `node['sql_server']['integration_services_account']` - Integration Services account name, default is `NT AUTHORITY\NETWORK SERVICE`
+* `node['sql_server']['integration_services_startup']` - Integration Services service startup mode, default is `Disabled`
+* `node['sql_server']['rs_mode']` - Reporting Services install mode, default is `FilesOnlyMode`
+* `node['sql_server']['rs_account']` - Reporting Services account name, default is `NT AUTHORITY\NETWORK SERVICE`
+* `node['sql_server']['rs_startup']` - Reporting Services startup mode, default is `Automatic`
+* `node['sql_server']['browser_startup']` - Browser Service startup mode, default is `Disabled`
+* `node['sql_server']['sysadmins']` - Windows accounts that are SQL administrators, default is `Administrator`
+* `node['sql_server']['sql_account']` - SQL service account name, default is `NT AUTHORITY\NETWORK SERVICE`
+* `node['sql_server']['sql_startup']` - SQL service startup mode, default is `Automatic`
 
 - `node['sql_server']['install_dir']` - main directory for installation, default is `C:\Program Files\Microsoft SQL Server`
 - `node['sql_server']['instance_name']` - name of the default instance, default is `SQLEXPRESS`
@@ -76,7 +94,7 @@ Installs required the SQL Server Native Client and all required dependencies. Th
 - [Microsoft SQL Server 2008 R2 Management Objects](http://www.microsoft.com/download/en/details.aspx?id=16978#SMO)
 - [Windows PowerShell Extensions for SQL Server 2008 R2](http://www.microsoft.com/download/en/details.aspx?id=16978#PowerShell)
 
-The SQL Server Native Client contains the SQL Server ODBC driver and the SQL Server OLE DB provider in one native dynamic link library (DLL) supporting applications using native-code APIs (ODBC, OLE DB and ADO) to Microsoft SQL Server. In simple terms these packages should allow any other node to act as a client of a SQL Server instance.
+The SQL Server Native Client contains the SQL Server ODBC driver and the SQL Server OLE DB provider in one native dynamic link library (DLL) supporting applications using native-code APIs (ODBC, OLE DB and ADO) to Microsoft SQL Server.  In simple terms these packages should allow any other node to act as a client of a SQL Server instance.
 
 ### configure
 Configures SQL Server registry keys via attributes, and restart the Engine service if required.
@@ -154,7 +172,7 @@ default_attributes(
 )
 ```
 
-Depending on your base Windows installation you may also need to open the configured static port in the Windows Firewall. In the name of security we do not do this by default but the follow code should get the job done:
+Depending on your base Windows installation you may also need to open the configured static port in the Windows Firewall.  In the name of security we do not do this by default but the follow code should get the job done:
 
 ```ruby
 # unlock port in firewall
