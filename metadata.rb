@@ -6,6 +6,7 @@ description      'Installs/Configures Microsoft SQL Server'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          '5.3.1'
 supports         'windows'
+depends          '7-zip'
 depends          'windows', '>= 3.0'
 source_url       'https://github.com/chef-cookbooks/sql_server'
 issues_url       'https://github.com/chef-cookbooks/sql_server/issues'

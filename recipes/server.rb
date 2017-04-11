@@ -22,11 +22,11 @@ Chef::Application.fatal!("node['sql_server']['server_sa_password'] must be set f
 
 config_file_path = win_friendly_path(File.join(Chef::Config[:file_cache_path], 'ConfigurationFile.ini'))
 
-sql_sys_admin_list = if node['sql_server']['sysadmins'].is_a? Array
-                       node['sql_server']['sysadmins'].map { |account| %("#{account}") }.join(' ') # surround each in quotes, space delimit list
-                     else
-                       %("#{node['sql_server']['sysadmins']}") # surround in quotes
-                     end
+if node['sql_server']['sysadmins'].is_a? Array
+  sql_sys_admin_list = node['sql_server']['sysadmins'].map { |e| '"' + e + '"' }.join(' ')
+else
+  sql_sys_admin_list = '"' + node['sql_server']['sysadmins'] + '"'
+end
 
 template config_file_path do
   source 'ConfigurationFile.ini.erb'
@@ -64,10 +64,33 @@ passwords_options = {
   enclosing_escape = safe_password.count('"').odd? ? '^' : ''
   "/#{option}=\"#{safe_password}#{enclosing_escape}\""
 end.compact.join ' '
+filename = File.basename(package_url).downcase
+fileextension = File.extname(filename)
+is_iso = ['.iso'].include? fileextension
 
-package package_name do
+include_recipe '7-zip' if is_iso
+
+download_path = "#{Chef::Config['file_cache_path']}/#{filename}"
+remote_file download_path do
   source package_url
   checksum package_checksum
+  only_if { is_iso }
+end
+
+directory "#{Chef::Config['file_cache_path']}/sql_server" do
+  recursive true
+end
+
+iso_extraction_dir = "#{Chef::Config['file_cache_path']}/sql_server/#{package_checksum}"
+
+execute 'extract_iso' do
+  command "#{File.join(node['7-zip']['home'], '7z.exe')} x -y -o\"#{iso_extraction_dir}\" #{download_path}"
+  only_if { is_iso && !(::File.directory?(iso_extraction_dir)) }
+end
+
+package package_name do
+  source !is_iso ? package_url : "#{iso_extraction_dir}/#{node['sql_server']['server']['setup']}"
+  checksum !is_iso ? package_checksum : nil
   timeout node['sql_server']['server']['installer_timeout']
   installer_type :custom
   options "/q /ConfigurationFile=#{config_file_path} #{passwords_options}"
