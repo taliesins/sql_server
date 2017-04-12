@@ -84,8 +84,8 @@ directory "#{iso_extraction_dir}" do
 end
 
 execute 'extract_iso' do
-  command "#{File.join(node['7-zip']['home'], '7z.exe')} x -y -o\"#{iso_extraction_dir}\" #{download_path}"
-  only_if { is_iso && !(::File.directory?(iso_extraction_dir)) }
+  command "\"#{File.join(node['7-zip']['home'], '7z.exe')}\" x -y -o\"#{iso_extraction_dir}\" \"#{download_path}\""
+  only_if { is_iso && !(::File.exist?("#{iso_extraction_dir}/#{node['sql_server']['server']['setup']}")) }
 end
 
 package package_name do
