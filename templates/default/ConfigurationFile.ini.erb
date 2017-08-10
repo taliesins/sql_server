@@ -222,11 +222,11 @@ ADDCURRENTUSERASSQLADMIN="<%= node['sql_server']['instance_name'] == 'SQLEXPRESS
 
 ; Specify 0 to disable or 1 to enable the TCP/IP protocol.
 
-TCPENABLED="1"
+TCPENABLED="<%= node['sql_server']['tcp_enabled'] %>"
 
 ; Specify 0 to disable or 1 to enable the Named Pipes protocol.
 
-NPENABLED="0"
+NPENABLED="<%= node['sql_server']['named_pipes_enabled'] %>"
 
 ; Startup type for Browser Service.
 
