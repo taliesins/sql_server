@@ -12,17 +12,14 @@ IACCEPTSQLSERVERLICENSETERMS="<%= node['sql_server']['accept_eula'] ? "True" : "
 
 <% unless (node['sql_server']['product_key'].nil? || node['sql_server']['product_key'].empty?)  -%>
 ; Product Key
-
 PID="<%= node['sql_server']['product_key'] %>"
 <% end -%>
-; The default is Windows Authentication. Use "SQL" for Mixed Mode Authentication.
 
+; The default is Windows Authentication. Use "SQL" for Mixed Mode Authentication.
 SECURITYMODE="SQL"
-SAPWD="<%= node['sql_server']['server_sa_password'] %>"
 
 <% unless node['sql_server']['version'].to_s.start_with? '2008' %>
 ; Specify whether SQL Server Setup should discover and include product updates. The valid values are True and False or 1 and 0. By default SQL Server Setup will include updates that are found.
-
 UpdateEnabled="<%= node['sql_server']['update_enabled'] ? "True" : "False" %>"
 <% end %>
 
@@ -222,11 +219,11 @@ ADDCURRENTUSERASSQLADMIN="<%= node['sql_server']['instance_name'] == 'SQLEXPRESS
 
 ; Specify 0 to disable or 1 to enable the TCP/IP protocol.
 
-TCPENABLED="<%= node['sql_server']['tcp_enabled'] %>"
+TCPENABLED="<%= node['sql_server']['tcp_enabled'] ? 1 : 0 %>"
 
 ; Specify 0 to disable or 1 to enable the Named Pipes protocol.
 
-NPENABLED="<%= node['sql_server']['named_pipes_enabled'] %>"
+NPENABLED="<%= node['sql_server']['np_enabled'] ? 1 : 0 %>"
 
 ; Startup type for Browser Service.
 
