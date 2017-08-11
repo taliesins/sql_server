@@ -67,12 +67,12 @@ end
 # If you have declared an agent account it will restart both the
 # agent service and the sql service. If not only the sql service
 if node['sql_server']['agent_startup'] == 'Automatic'
-  service agent_service_name do
-    action [:start, :enable]
+  windows_service agent_service_name do
+    action [:enable, :start]
   end
 end
 
-service service_name do
-  action [:start, :enable]
+windows_service service_name do
+  action [:enable, :start]
   restart_command %(powershell.exe -C "restart-service '#{service_name}' -force")
 end

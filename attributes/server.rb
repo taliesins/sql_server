@@ -18,6 +18,11 @@
 # limitations under the License.
 #
 
+default['sql_server']['server_sa_password'] = nil
+default['sql_server']['agent_account_pwd'] = nil
+default['sql_server']['rs_account_pwd'] = nil
+default['sql_server']['sql_account_pwd'] = nil
+
 default['sql_server']['install_dir']    = 'C:\Program Files\Microsoft SQL Server'
 default['sql_server']['instance_name']  = 'SQLEXPRESS'
 default['sql_server']['instance_dir']   = 'C:\Program Files\Microsoft SQL Server'
