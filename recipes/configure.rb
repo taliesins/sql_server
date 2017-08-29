@@ -38,21 +38,21 @@ registry_key "#{reg_prefix}\\SuperSocketNetLib\\Tcp\\IPAll" do
           { name: 'TcpPort', type: :string, data: node['sql_server']['port'].to_s },
           { name: 'TcpDynamicPorts', type: :string, data: node['sql_server']['tcp_dynamic_ports'].to_s }]
   recursive true
-  notifies :restart, "service[#{service_name}]", :immediately
+  notifies :restart, "windows_service[#{service_name}]", :immediately
 end
 
 # Configure Named Pipes settings
 registry_key "#{reg_prefix}\\SuperSocketNetLib\\Np" do
   values [{ name: 'Enabled', type: :dword, data: node['sql_server']['np_enabled'] ? 1 : 0 }]
   recursive true
-  notifies :restart, "service[#{service_name}]", :immediately
+  notifies :restart, "windows_service[#{service_name}]", :immediately
 end
 
 # Configure Shared Memory settings
 registry_key "#{reg_prefix}\\SuperSocketNetLib\\Sm" do
   values [{ name: 'Enabled', type: :dword, data: node['sql_server']['sm_enabled'] ? 1 : 0 }]
   recursive true
-  notifies :restart, "service[#{service_name}]", :immediately
+  notifies :restart, "windows_service[#{service_name}]", :immediately
 end
 
 # Configure Via settings
@@ -61,7 +61,7 @@ registry_key "#{reg_prefix}\\SuperSocketNetLib\\Via" do
           { name: 'Enabled', type: :dword, data: node['sql_server']['via_enabled'] ? 1 : 0 },
           { name: 'ListenInfo', type: :string, data: node['sql_server']['via_listen_info'].to_s }]
   recursive true
-  notifies :restart, "service[#{service_name}]", :immediately
+  notifies :restart, "windows_service[#{service_name}]", :immediately
 end
 
 # If you have declared an agent account it will restart both the
