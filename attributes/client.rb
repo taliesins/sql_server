@@ -61,6 +61,27 @@ if node['kernel']['machine'] =~ /x86_64/
     default['sql_server']['ps_extensions']['url']               = 'http://download.microsoft.com/download/F/E/D/FEDB200F-DE2A-46D8-B661-D019DFE9D470/ENU/x64/PowerShellTools.MSI'
     default['sql_server']['ps_extensions']['checksum']          = '532261175cc6116439b89be476fa403737d85f2ee742f2958cf9c066bcbdeaba'
     default['sql_server']['ps_extensions']['package_name']      = 'Windows PowerShell Extensions for SQL Server 2012'
+
+  when '2016'
+    default['sql_server']['native_client']['url']               = 'https://download.microsoft.com/download/8/7/2/872BCECA-C849-4B40-8EBE-21D48CDF1456/ENU/x64/sqlncli.msi'
+    default['sql_server']['native_client']['checksum']          = 'b7e207d6cb8f391f74afb02007c52e37d39406ff84622c2c4a89b9cb4ab8f83f'
+    default['sql_server']['native_client']['package_name']      = 'Microsoft SQL Server 2016 Native Client'
+
+    default['sql_server']['command_line_utils']['url']          = 'https://download.microsoft.com/download/8/7/2/872BCECA-C849-4B40-8EBE-21D48CDF1456/ENU/x64/MsSqlCmdLnUtils.msi'
+    default['sql_server']['command_line_utils']['checksum']     = 'edc40095a9034545a7b15cf1650ec4ea527fe04a494b7c8ad4d769701db9fe5b'
+    default['sql_server']['command_line_utils']['package_name'] = 'Microsoft SQL Server 2016 Command Line Utilities'
+
+    default['sql_server']['clr_types']['url']                   = 'https://download.microsoft.com/download/8/7/2/872BCECA-C849-4B40-8EBE-21D48CDF1456/ENU/x64/SQLSysClrTypes.msi'
+    default['sql_server']['clr_types']['checksum']              = '73bb1fbca4cf593b8be454379b015d326f719cd8f21018cc5e10b4ad2d2f8b6d'
+    default['sql_server']['clr_types']['package_name']          = 'Microsoft SQL Server System CLR Types (x64)'
+
+    default['sql_server']['smo']['url']                         = 'https://download.microsoft.com/download/8/7/2/872BCECA-C849-4B40-8EBE-21D48CDF1456/ENU/x64/SharedManagementObjects.msi'
+    default['sql_server']['smo']['checksum']                    = 'ea38d5231f6678089316d744edc5b074af735ddd933fd665ce961f602616640c'
+    default['sql_server']['smo']['package_name']                = 'Microsoft SQL Server 2016 Management Objects (x64)'
+
+    default['sql_server']['ps_extensions']['url']               = 'https://download.microsoft.com/download/8/7/2/872BCECA-C849-4B40-8EBE-21D48CDF1456/ENU/x64/PowerShellTools.msi'
+    default['sql_server']['ps_extensions']['checksum']          = '73fbf36472d713e5b0116656e92efeb2e1537599ba5f092d096f18439c81d8c6'
+    default['sql_server']['ps_extensions']['package_name']      = 'Windows PowerShell Extensions for SQL Server 2016'
   end
 
 else
@@ -106,6 +127,26 @@ else
     default['sql_server']['ps_extensions']['url']               = 'http://download.microsoft.com/download/F/E/D/FEDB200F-DE2A-46D8-B661-D019DFE9D470/ENU/x86/PowerShellTools.MSI'
     default['sql_server']['ps_extensions']['checksum']          = '6a181aeb27b4baec88172c2e80f33ea3419c7e86f6aea0ed1846137bc9144fc6'
     default['sql_server']['ps_extensions']['package_name']      = 'Windows PowerShell Extensions for SQL Server 2012'
+  
+    when '2012'
+      default['sql_server']['native_client']['url']               = 'https://download.microsoft.com/download/8/7/2/872BCECA-C849-4B40-8EBE-21D48CDF1456/ENU/x86/sqlncli.msi'
+      default['sql_server']['native_client']['checksum']          = '6de66278522e6e76607585f27e9d5e13b48a84d2896c4daa421e875b14fa350b'
+      default['sql_server']['native_client']['package_name']      = 'Microsoft SQL Server 2016 Native Client'
+  
+      default['sql_server']['command_line_utils']['url']          = 'https://download.microsoft.com/download/8/7/2/872BCECA-C849-4B40-8EBE-21D48CDF1456/ENU/x86/MsSqlCmdLnUtils.msi'
+      default['sql_server']['command_line_utils']['checksum']     = '3455dceb60891d821db358589f1858feb942c168a7c4a3ea1c8b3818dda743cb'
+      default['sql_server']['command_line_utils']['package_name'] = 'Microsoft SQL Server 2016 Command Line Utilities'
+  
+      default['sql_server']['clr_types']['url']                   = 'https://download.microsoft.com/download/8/7/2/872BCECA-C849-4B40-8EBE-21D48CDF1456/ENU/x86/SQLSysClrTypes.msi'
+      default['sql_server']['clr_types']['checksum']              = '138a0b3741ca46a2290e176177b121b3f93a2f8c9ac9ff5cb818e26ceb88c607'
+      default['sql_server']['clr_types']['package_name']          = 'Microsoft SQL Server System CLR Types (x86)'
+  
+      default['sql_server']['smo']['url']                         = 'https://download.microsoft.com/download/8/7/2/872BCECA-C849-4B40-8EBE-21D48CDF1456/ENU/x86/SharedManagementObjects.msi'
+      default['sql_server']['smo']['checksum']                    = '59e80344fdc248ff20a3a141802897aafd58cd84917de686d1b92b930350f2ca'
+      default['sql_server']['smo']['package_name']                = 'Microsoft SQL Server 2016 Management Objects (x86)'
+  
+      default['sql_server']['ps_extensions']['url']               = 'https://download.microsoft.com/download/8/7/2/872BCECA-C849-4B40-8EBE-21D48CDF1456/ENU/x86/PowerShellTools.msi'
+      default['sql_server']['ps_extensions']['checksum']          = 'fb5bbeac51c42882b383c2b7604e4d19b87e24e3a6ac8f878f32749dadef6dc1'
+      default['sql_server']['ps_extensions']['package_name']      = 'Windows PowerShell Extensions for SQL Server 2016'
   end
-
 end
