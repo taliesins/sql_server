@@ -26,14 +26,16 @@ if node['platform_version'].to_f == 6.1
 end
 
 %w( odbc_driver native_client command_line_utils clr_types smo ps_extensions ).each do |pkg|
-  package pkg do
-    package_name node['sql_server'][pkg]['package_name']
-    source node['sql_server'][pkg]['url']
-    checksum node['sql_server'][pkg]['checksum']
-    installer_type :msi
-    options " IACCEPTMSSQLCMDLNUTILSLICENSETERMS=#{node['sql_server']['accept_eula'] ? 'YES' : 'NO'} IACCEPTMSODBCSQLLICENSETERMS=#{node['sql_server']['accept_eula'] ? 'YES' : 'NO'} IACCEPTSQLNCLILICENSETERMS=#{node['sql_server']['accept_eula'] ? 'YES' : 'NO'}"
-    action :install
-    not_if node['sql_server'][pkg].nil?
+  if !node['sql_server'][pkg].nil?
+    package pkg do
+      package_name node['sql_server'][pkg]['package_name']
+      source node['sql_server'][pkg]['url']
+      checksum node['sql_server'][pkg]['checksum']
+      installer_type :msi
+      options " IACCEPTMSSQLCMDLNUTILSLICENSETERMS=#{node['sql_server']['accept_eula'] ? 'YES' : 'NO'} IACCEPTMSODBCSQLLICENSETERMS=#{node['sql_server']['accept_eula'] ? 'YES' : 'NO'} IACCEPTSQLNCLILICENSETERMS=#{node['sql_server']['accept_eula'] ? 'YES' : 'NO'}"
+      action :install
+      not_if node['sql_server'][pkg].nil?
+    end
   end
 end
 
